@@ -22,13 +22,11 @@ def info():
     date2 = request.values.get('date2')
     date3 = request.values.get('date3')
     date4 = request.values.get('date4')
-    if date3 == None:
-        print(type(t))
+    if date3 is None:
         date3 = t.split('-')[0] + '-01' + '-01'
-    if date4 == None:
+    if date4 is None:
         date4 = t
     date = [date1, date2, date3, date4]
-
     result = jk_info()
     result = json.dumps(result)
     return result
@@ -84,7 +82,6 @@ def dowmload():
     # list = [l[1:-1] for l in date1[1:-1].split(',')]
     list = [i for i in date1.split('@')]
     result = dowonload(list)
-
     return str(result)
 
 
