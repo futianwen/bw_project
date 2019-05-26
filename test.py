@@ -8,6 +8,7 @@ import os
 import redis
 import random
 from user_agent import user_agent
+
 t = time.time()  # 时间戳
 t = time.localtime(t)  # 通过time.localtime将时间戳转换成时间组
 t = time.strftime("%Y-%m-%d", t)  # 再将时间组转换成指定格式
@@ -36,8 +37,8 @@ def get_cookies():
     # login
     username = driver.find_element_by_id('userName')
     password = driver.find_element_by_id('passWord')
-    username.send_keys()
-    password.send_keys()
+    username.send_keys('')
+    password.send_keys('')
     yzm = input('yzm:')
     yzm_tag = driver.find_element_by_id('captchCode')
     yzm_tag.send_keys(yzm)
@@ -67,27 +68,27 @@ def update_cookie():
 
 # 读取cookie值并进行发出查询请求
 def jk_info():
-    r = redis.Redis(host='127.0.0.1', port=6379)
+    r = redis.Redis(host='127.0.0.1', port=6379, db=0)
     # update cookies in session
     c = update_cookie()
     session.cookies.update(c)
     date_list = ['2019-04-01', '2019-04-30', '2019-01-01', '2019-05-31']
     url = 'https://etax.shaanxi.chinatax.gov.cn/sbzs-cjpt-web/tycx/query.do?bw=%7B%22taxML%22:%7B%22head%22:%7B%22gid%22:%22311085A116185FEFE053C2000A0A5B63%22,%22sid%22:%22gjyy.yhscx.SBZS.YJSKCX%22,%22tid%22:%22+%22,%22version%22:%22%22%7D,%22body%22:%7B%22gdbz%22:%22%22,%22jkrqq%22:%22{}%22,%22jkrqz%22:%22{}%22,%22skssqq%22:%22{}%22,%22skssqz%22:%22{}%22%7D%7D%7D&djxh=10116101010000359426&gdslxDm=1'.format(
         date_list[0], date_list[1], date_list[2], date_list[3])
+
     resp = session.get(url, headers=headers)
-    print(resp.status_code)
-    try:
-        print(1)
-        print(resp.text)
-        resp = json.loads(resp.text)
-        print(2)
-        print(resp.text)
-        r.set(''.join(date_list), str(resp.text))
-        return resp.text
-    except Exception:
-        print('验证码错误')
-        get_cookies()
-        jk_info()
+    while True:
+        try:
+            resp = json.loads(resp.text)
+            break
+        except Exception:
+            print('验证码错误')
+            get_cookies()
+            c = update_cookie()
+            session.cookies.update(c)
+            resp = session.get(url, headers=headers)
+    r.set(''.join(date_list), str(resp))
+    return resp
 
 
 # 下载凭证
@@ -104,18 +105,21 @@ def down_pz(data):
     id_url = 'https://etax.shaanxi.chinatax.gov.cn/sbzs-cjpt-web/tycx/hcJkpzPdf.do'
     yzqxxid = session.post(id_url, headers=headers, data=params).text
     print(yzqxxid)
-    try:
-        yzqxxid = json.loads(yzqxxid)
-
-        yzqxxid = yzqxxid['yzqxxid']
-        pdf_url = 'https://etax.shaanxi.chinatax.gov.cn/zlpz-cjpt-web/zlpz/showPdfByYzqxxidAndDzbzdszlDm.do?yzqxxid={}&viewOrDownload=download&dzbzdszlDm=jkpzdy&gdslxDm=1'.format(
-            yzqxxid)
-        print(pdf_url)
-        r = session.post(pdf_url, headers=headers)
-        print(r.content)
-        with open('jkpz.pdf', 'wb') as f:
-            f.write(r.content)
-        return r.content
-    except Exception:
-        get_cookies()
-        down_pz(data)
+    while True:
+        try:
+            yzqxxid = json.loads(yzqxxid)
+            break
+        except Exception:
+            get_cookies()
+            c = update_cookie()
+            session.cookies.update(c)
+            yzqxxid = session.post(id_url, headers=headers, data=params).text
+    yzqxxid = yzqxxid['yzqxxid']
+    pdf_url = 'https://etax.shaanxi.chinatax.gov.cn/zlpz-cjpt-web/zlpz/showPdfByYzqxxidAndDzbzdszlDm.do?yzqxxid={}&viewOrDownload=download&dzbzdszlDm=jkpzdy&gdslxDm=1'.format(
+        yzqxxid)
+    print(pdf_url)
+    r = session.post(pdf_url, headers=headers)
+    print(r.content)
+    with open('jkpz.pdf', 'wb') as f:
+        f.write(r.content)
+    return r.content

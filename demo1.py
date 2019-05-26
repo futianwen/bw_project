@@ -1,9 +1,7 @@
-from selenium import webdriver
-chrome_options = webdriver.ChromeOptions()
-# chrome_options.add_argument('--headless')
-chrome_options.add_argument('--no-sandbox')
-chrome_options.add_argument('--disable-gpu')
-chrome_options.add_argument('--disable-dev-shm-usage')
+import time
+t = time.time()  # 时间戳
+t = time.localtime(t)  # 通过time.localtime将时间戳转换成时间组
+t = time.strftime("%Y-%m-%d", t)  # 再将时间组转换成指定格式
 
-driver = webdriver.Chrome('/usr/local/bin/chromedriver', chrome_options=chrome_options)
-driver.get('https://www.baidu.com')
+a = '2019-01-01'
+print(a.split('-'))

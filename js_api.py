@@ -9,7 +9,6 @@ from urllib.parse import quote
 import time
 
 r = redis.Redis(host='127.0.0.1', port=6379)
-
 t = time.time()  # 时间戳
 t = time.localtime(t)  # 通过time.localtime将时间戳转换成时间组
 t = time.strftime("%Y-%m-%d", t)  # 再将时间组转换成指定格式
@@ -23,6 +22,11 @@ def info():
     date2 = request.values.get('date2')
     date3 = request.values.get('date3')
     date4 = request.values.get('date4')
+    if date3 == None:
+        print(type(t))
+        date3 = t.split('-')[0] + '-01' + '-01'
+    if date4 == None:
+        date4 = t
     date = [date1, date2, date3, date4]
 
     result = jk_info()
