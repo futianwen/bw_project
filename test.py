@@ -72,20 +72,33 @@ def jk_info():
     date_list = ['2019-04-01', '2019-04-30', '2019-01-01', '2019-05-31']
     url = 'https://etax.shaanxi.chinatax.gov.cn/sbzs-cjpt-web/tycx/query.do?bw=%7B%22taxML%22:%7B%22head%22:%7B%22gid%22:%22311085A116185FEFE053C2000A0A5B63%22,%22sid%22:%22gjyy.yhscx.SBZS.YJSKCX%22,%22tid%22:%22+%22,%22version%22:%22%22%7D,%22body%22:%7B%22gdbz%22:%22%22,%22jkrqq%22:%22{}%22,%22jkrqz%22:%22{}%22,%22skssqq%22:%22{}%22,%22skssqz%22:%22{}%22%7D%7D%7D&djxh=10116101010000359426&gdslxDm=1'.format(
         date_list[0], date_list[1], date_list[2], date_list[3])
-
     resp = session.get(url, headers=headers, allow_redirects=False)
-    print(resp.status_code)
-    while True:
-        try:
-            resp = json.loads(resp.text)
-            break
-        except Exception:
-            print('验证码错误')
+
+    if resp.status_code == 302:
+        while True:
+            print('cookie过期')
             get_cookies()
             c = update_cookie()
             session.cookies.update(c)
-            resp = session.get(url, headers=headers)
-            print(resp.status_code)
+            resp = session.get(url, headers=headers, allow_redirects=False)
+            if resp.status_code == 200:
+                break
+    elif resp.status_code == 500:
+        print('服务器故障')
+        resp = session.get(url, headers=headers, allow_redirects=False)
+
+    # while True:
+    #     try:
+    #         resp = json.loads(resp.text)
+    #         break
+    #     except Exception:
+    #         print('验证码错误')
+    #         get_cookies()
+    #         c = update_cookie()
+    #         session.cookies.update(c)
+    #         resp = session.get(url, headers=headers)
+    #         print(resp.status_code)
+    resp = json.loads(resp.text)
     r.set(''.join(date_list), str(resp))
     return resp
 
