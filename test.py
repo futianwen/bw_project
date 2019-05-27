@@ -34,8 +34,8 @@ def get_cookies():
     # login
     username = driver.find_element_by_id('userName')
     password = driver.find_element_by_id('passWord')
-    username.send_keys('')
-    password.send_keys('')
+    username.send_keys('91610113MA6W58N53C')
+    password.send_keys('425607')
     yzm = input('yzm:')
     yzm_tag = driver.find_element_by_id('captchCode')
     yzm_tag.send_keys(yzm)
@@ -124,9 +124,11 @@ def down_pz(data):
     }
     id_url = 'https://etax.shaanxi.chinatax.gov.cn/sbzs-cjpt-web/tycx/hcJkpzPdf.do'
     yzqxxid = session.post(id_url, headers=headers, data=params, allow_redirects=False)
+    print(yzqxxid.status_code)
     if yzqxxid.status_code == 302:
         print('cookie过期')
         while True:
+            get_cookies()
             c = update_cookie()
             session.cookies.update(c)
             yzqxxid = session.post(id_url, headers=headers, data=params, allow_redirects=False)
