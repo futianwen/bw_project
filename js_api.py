@@ -39,7 +39,7 @@ def items():
     item_infos = str(item_infos, encoding='utf-8')
     print(item_infos)
     item_infos = eval(item_infos)
-    info_list = item_infos['taxML']['body']['taxML']['jsxxList']['jsxx']
+    info_list = item_infos.values()
     jexx = 0
     xml_fw = '<?xml version="1.0" encoding="UTF-8"?><taxML><head><publichead><nsrsbh>91610113MA6W58N53C</nsrsbh><nsrmc>西安沪友发展信息科技有限公司</nsrmc><jgmc>国家税务总局西安市雁塔区税务局电子城税务所</jgmc><yhzh>61050176004300000319</yhzh><dyrq>{}</dyrq><pzbh></pzbh><gdslxDm>1</gdslxDm></publichead></head><body><pageggxx><printCount></printCount><pageoneprintflag></pageoneprintflag><pagetwoprintflag></pagetwoprintflag><pagethreeprintflag></pagethreeprintflag><pageCount></pageCount><pagexml></pagexml></pageggxx><pageone><pagexx><jexx>{}</jexx><jedx>{}</jedx><pageCount></pageCount><jkxx>'
     xml_af = '</jkxx></pagexx></pageone></body></taxML>'

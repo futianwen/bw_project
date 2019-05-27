@@ -34,8 +34,8 @@ def get_cookies():
     # login
     username = driver.find_element_by_id('userName')
     password = driver.find_element_by_id('passWord')
-    username.send_keys('91610113MA6W58N53C')
-    password.send_keys('425607')
+    username.send_keys('')
+    password.send_keys('')
     yzm = input('yzm:')
     yzm_tag = driver.find_element_by_id('captchCode')
     yzm_tag.send_keys(yzm)
@@ -99,8 +99,16 @@ def jk_info():
     #         resp = session.get(url, headers=headers)
     #         print(resp.status_code)
     resp = json.loads(resp.text)
-    r.set(''.join(date_list), str(resp))
-    return resp
+    info_list = resp['taxML']['body']['taxML']['jsxxList']['jsxx']
+    ser = 1
+    info_dict = {}
+    for info in info_list:
+        i = {ser: info}
+        info_dict.update(i)
+        ser += 1
+
+    r.set(''.join(date_list), str(info_dict))
+    return info_dict
 
 
 # 下载凭证
@@ -115,17 +123,27 @@ def down_pz(data):
         'gdslxDm': '1'
     }
     id_url = 'https://etax.shaanxi.chinatax.gov.cn/sbzs-cjpt-web/tycx/hcJkpzPdf.do'
-    yzqxxid = session.post(id_url, headers=headers, data=params).text
-    print(yzqxxid)
-    while True:
-        try:
-            yzqxxid = json.loads(yzqxxid)
-            break
-        except Exception:
-            get_cookies()
+    yzqxxid = session.post(id_url, headers=headers, data=params, allow_redirects=False)
+    if yzqxxid.status_code == 302:
+        print('cookie过期')
+        while True:
             c = update_cookie()
             session.cookies.update(c)
-            yzqxxid = session.post(id_url, headers=headers, data=params).text
+            yzqxxid = session.post(id_url, headers=headers, data=params, allow_redirects=False)
+            if yzqxxid.status_code == 200:
+                break
+
+    yzqxxid = json.loads(yzqxxid.text)
+    print(yzqxxid)
+    # while True:
+    #     try:
+    #         yzqxxid = json.loads(yzqxxid)
+    #         break
+    #     except Exception:
+    #         get_cookies()
+    #         c = update_cookie()
+    #         session.cookies.update(c)
+    #         yzqxxid = session.post(id_url, headers=headers, data=params).text
     yzqxxid = yzqxxid['yzqxxid']
     pdf_url = 'https://etax.shaanxi.chinatax.gov.cn/zlpz-cjpt-web/zlpz/showPdfByYzqxxidAndDzbzdszlDm.do?yzqxxid={}&viewOrDownload=download&dzbzdszlDm=jkpzdy&gdslxDm=1'.format(
         yzqxxid)

@@ -51,20 +51,34 @@ def shanxi_spider(startime, endtime):
         'sbrqz': endtime,
         'reqParamsJSON': '{"gsDjxh":"10116101010000359426","dsDjxh":"10126101010000361431","gsNsrsbh":"91610113MA6W58N53C","dsNsrsbh":"91610113MA6W58N53C","gsZgswjdm":"16101130000","dsZgswjdm":"00000000000","gsSwjgDm":"16101134900","dsSwjgDm":"00000000000"}'
     }
-    res = session.get(url, headers=headers, verify=False, params=params)
-    print(res.url)
+    res = session.get(url, headers=headers, verify=False, params=params, allow_redirects=False)
+    print(res.url, res.status_code)
     # res.encoding = 'utf8'
     # print(res.text)
-    try:
-        html = json.loads(res.text)
-    except:
-        get_cookies()
-        c = update_cookie()
-        session.cookies.update(c)
-        res = session.get(url, headers=headers, verify=False, params=params)
-        print(res.url)
-        res.encoding = 'utf8'
-        html = json.loads(res.text)
+    if res.status_code == 302:
+        #cookie过期
+        while True:
+            get_cookies()
+            c = update_cookie()
+            session.cookies.update(c)
+            res = session.get(url, headers=headers, verify=False, params=params, allow_redirects=False)
+            if res.status_code == 200:
+                break
+    elif res.status_code == 500:
+        #服务器异常重新请求
+        res = session.get(url, headers=headers, verify=False, params=params, allow_redirects=False)
+    elif res.status_code == 200:
+        pass
+    # try:
+    #     html = json.loads(res.text)
+    # except:
+    #     get_cookies()
+    #     c = update_cookie()
+    #     session.cookies.update(c)
+    #     res = session.get(url, headers=headers, verify=False, params=params)
+    #     print(res.url)
+    res.encoding = 'utf-8'
+    html = json.loads(res.text)
     sbxxList = html['sbxxList']
     xsq_list = []
     xsq_dict = {}
@@ -107,14 +121,24 @@ def dowonload(ysqxxid_list):
         headers = {
             'User-Agent': 'Mowindowszilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.131 Safari/537.36',
         }
-        res = session.get(url, headers=headers, verify=False, params=params)
+        res = session.get(url, headers=headers, verify=False, params=params, allow_redirects=False)
+        print(res.status_code)
         if res.status_code != 200:
-            get_cookies()
-            c = update_cookie()
-            session.cookies.update(c)
-            res = session.get(url, headers=headers, verify=False, params=params)
+            # cookie过期
+            while True:
+                get_cookies()
+                c = update_cookie()
+                session.cookies.update(c)
+                res = session.get(url, headers=headers, verify=False, params=params, allow_redirects=False)
+                if res.status_code == 200:
+                    break
+        # elif res.status_code == 500:
+        #     # 服务器异常重新请求
+        #     res = session.get(url, headers=headers, verify=False, params=params, allow_redirects=False)
+        # elif res.status_code == 200:
+        #     pass
         dict[name] = res.content
-        print(res.content)
+        # print(res.content)
         try:
             with open('%s.pdf' % name, 'wb') as f:
                 f.write(res.content)
