@@ -18,16 +18,18 @@ server = flask.Flask(__name__)
 # 缴款查询api
 @server.route('/info', methods=['get'])
 def info():
-    date1 = request.values.get('date1')
-    date2 = request.values.get('date2')
-    date3 = request.values.get('date3')
-    date4 = request.values.get('date4')
+    date1 = request.values.get('d1')
+    date2 = request.values.get('d2')
+    date3 = request.values.get('d3')
+    date4 = request.values.get('d4')
     if date3 is None:
         date3 = t.split('-')[0] + '-01' + '-01'
     if date4 is None:
         date4 = t
     date = [date1, date2, date3, date4]
-    result = jk_info()
+    print(1)
+    result = jk_info(date)
+    print(result)
     result = json.dumps(result)
     return result
 
@@ -35,11 +37,17 @@ def info():
 # 缴款凭证下载api
 @server.route('/items', methods=['get'])
 def items():
-    item_infos = r.get('2019-04-012019-04-302019-01-012019-05-31')
+    key = request.values.get('key')
+    sers = request.values.get('sers')
+    sers = sers.split('_')[:-1]
+    sers = map(lambda x: int(x), sers)
+    item_infos = r.get(key)
     item_infos = str(item_infos, encoding='utf-8')
     print(item_infos)
     item_infos = eval(item_infos)
-    info_list = item_infos.values()
+    info_list = []
+    for i in sers:
+        info_list.append(item_infos[i])
     jexx = 0
     xml_fw = '<?xml version="1.0" encoding="UTF-8"?><taxML><head><publichead><nsrsbh>91610113MA6W58N53C</nsrsbh><nsrmc>西安沪友发展信息科技有限公司</nsrmc><jgmc>国家税务总局西安市雁塔区税务局电子城税务所</jgmc><yhzh>61050176004300000319</yhzh><dyrq>{}</dyrq><pzbh></pzbh><gdslxDm>1</gdslxDm></publichead></head><body><pageggxx><printCount></printCount><pageoneprintflag></pageoneprintflag><pagetwoprintflag></pagetwoprintflag><pagethreeprintflag></pagethreeprintflag><pageCount></pageCount><pagexml></pagexml></pageggxx><pageone><pagexx><jexx>{}</jexx><jedx>{}</jedx><pageCount></pageCount><jkxx>'
     xml_af = '</jkxx></pagexx></pageone></body></taxML>'
