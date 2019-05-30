@@ -25,3 +25,31 @@ http://144.34.197.29:8000/info?d1=2019-04-01&d2=2019-05-01&d3=2019-01-01&d4=2019
     如sers=1_2_
     如http://144.34.197.29:8000/items?key=2019-04-012019-04-302019-01-012019-05-31&sers=1_2_
 ```
+
+#### 3. 申报查询接口
+```
+接口：http://http://144.34.197.29:8000/pgd
+请求方式：GET
+请求参数：
+	1.申报日期起：startime=
+	2.申报日期止：endtime=
+	其中startime、endtime为必须参数
+如查询申报日期为2019-04-01至2019-05-01
+http://144.34.197.29:8000/pgd?startime=2019-04-01&endtime=2019-05-01
+返回内容包含每条可下载信息的ysqxxid
+```
+
+
+#### 4. 申报下载接口
+```
+接口：http://http://144.34.197.29:8000/download
+请求方式：GET
+请求参数：
+	1.需要下载项的ysqxxid列表：ysqxxid_list=
+	由所需下载项的ysqxxid拼接而成，多条数据以@分隔
+	ysqxxid_list为必须参数
+如查询申报日期为2019-04-01至2019-05-01，有4条可下载内容。
+ysqxxid分别为：ysqxxid1,ysqxxid2,ysqxxid3,ysqxxid4。若需要下载头两条
+http://144.34.197.29:8000/pgd/download?ysqxxid_list=ysqxxid1@ysqxxid2
+```
+

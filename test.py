@@ -148,19 +148,14 @@ def update_cookie():
 # 读取cookie值并进行发出查询请求
 def jk_info(date_list):
     r = redis.Redis(host='127.0.0.1', port=6379, db=0)
-    print(2)
-
     # update cookies in session
     c = update_cookie()
-    print(3)
     session.cookies.update(c)
     # date_list = ['2019-04-01', '2019-04-30', '2019-01-01', '2019-05-31']
     url = 'https://etax.shaanxi.chinatax.gov.cn/sbzs-cjpt-web/tycx/query.do?bw=%7B%22taxML%22:%7B%22head%22:%7B%22gid%22:%22311085A116185FEFE053C2000A0A5B63%22,%22sid%22:%22gjyy.yhscx.SBZS.YJSKCX%22,%22tid%22:%22+%22,%22version%22:%22%22%7D,%22body%22:%7B%22gdbz%22:%22%22,%22jkrqq%22:%22{}%22,%22jkrqz%22:%22{}%22,%22skssqq%22:%22{}%22,%22skssqz%22:%22{}%22%7D%7D%7D&djxh=10116101010000359426&gdslxDm=1'.format(
         date_list[0], date_list[1], date_list[2], date_list[3])
-    print(4)
     resp = session.get(url, headers=headers, allow_redirects=False)
-    print(5)
-    print(resp.status_code)
+    print(1, resp.status_code)
     print(resp.text)
     if resp.status_code == 302:
         while True:
@@ -169,6 +164,7 @@ def jk_info(date_list):
             c = update_cookie()
             session.cookies.update(c)
             resp = session.get(url, headers=headers, allow_redirects=False)
+            print(2, resp.cookies)
             if resp.status_code == 200:
                 break
     elif resp.status_code == 500:
@@ -177,6 +173,7 @@ def jk_info(date_list):
         c = update_cookie()
         session.cookies.update(c)
         resp = session.get(url, headers=headers, allow_redirects=False)
+        print(3, resp.status_code)
     resp = json.loads(resp.text)
     info_list = resp['taxML']['body']['taxML']['jsxxList']['jsxx']
     ser = 1
