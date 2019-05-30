@@ -176,14 +176,20 @@ def jk_info(date_list):
         print(3, resp.status_code)
     resp = json.loads(resp.text)
     info_list = resp['taxML']['body']['taxML']['jsxxList']['jsxx']
-    ser = 1
-    info_dict = {}
-    for info in info_list:
-        i = {ser: info}
-        info_dict.update(i)
-        ser += 1
-    r.set(''.join(date_list), str(info_dict))
-    return info_dict
+    if info_list == []:
+        print('未查询到可用数据')
+        return {'msg': '未查询到可用数据'}
+
+    else:
+        print(info_list)
+        ser = 1
+        info_dict = {}
+        for info in info_list:
+            i = {ser: info}
+            info_dict.update(i)
+            ser += 1
+        r.set(''.join(date_list), str(info_dict))
+        return info_dict
 
 
 # 下载凭证

@@ -29,7 +29,7 @@ def info():
     date = [date1, date2, date3, date4]
     print(1)
     result = jk_info(date)
-    print(result)
+
     result = json.dumps(result)
     return result
 
